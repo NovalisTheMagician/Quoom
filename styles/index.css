@@ -1,0 +1,29 @@
+html, body {
+	display: block;
+	margin: auto;
+	width: 50%;
+}
+
+aside {
+	position: absolute;
+	top: 1px;
+	right: 1px;
+}
+
+header {
+	text-align: center;
+}
+
+footer {
+	position: absolute;
+	bottom: 1px;
+}
+
+#login {
+	background-color: #32B2B2;
+	text-align: center;
+}
+
+#register {
+	display: none;
+}

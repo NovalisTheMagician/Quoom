@@ -18,7 +18,9 @@ footer{
     height: 5%;
     text-align: center;
     color: #D9F2F4;
-    position: static;
+    position: relative;
+    bottom: 0px;
+    z-index: 50;
     margin-top: -5px;
     padding-top: 5px;
     padding-bottom: -2px;
@@ -35,7 +37,6 @@ hr {
 
 section.news {
     width: 80%;
-    height: 100%;
 }
 
 section.login {
@@ -88,11 +89,17 @@ nav.navigation-bar ul{
     padding: 0;
     overflow: hidden;
     background-color: #111E23;
+    position: fixed;
+    z-index: 100;
+    left: 0px;
+    top: 0px;
 }
 
 section {
+    position:relative;
+    top: -20px;
     width: 70%;
-    height: 70%;
+    height: 100%;
     margin: auto;
     background-color: #81B7CF;
 	text-align: center;

@@ -21,6 +21,11 @@ footer{
     position: static;
     margin-top: -5px;
     padding-top: 5px;
+    padding-bottom: -2px;
+}
+
+footer, p {
+    padding-bottom: 10px;
 }
 
 hr {

@@ -18,6 +18,7 @@
 			<canvas class="workarea-item" id="canvas" tabindex="1"></canvas>
 		</div>
 		<div id="statusbar">
+			<span class="statusbar-item">></span>
 			<span class="statusbar-item">Mode:</span>
 			<span class="statusbar-item" id="editmode">Vertex</span>
 			<span class="statusbar-item"> | </span>
@@ -30,13 +31,24 @@
 			<span class="statusbar-item">Zoomstep:</span>
 			<span class="statusbar-item" id="zoomstep">0.1</span>
 			<span class="statusbar-item"> | </span>
-			<span class="statusbar-item">Viewportcenter:(</span>
+			<span class="statusbar-item">VPcenter:(</span>
 			<span class="statusbar-item" id="vpcenterx">0.0</span>
 			<span class="statusbar-item">:</span>
 			<span class="statusbar-item" id="vpcentery">0.0</span>
 			<span class="statusbar-item">)</span>
 			<span class="statusbar-item"> | </span>
-			<span class="statusbar-item">16 pixel = 1 worldunit</span>
+			<span class="statusbar-item">VPbounds:(</span>
+			<span class="statusbar-item" id="vpboundx">0.0</span>
+			<span class="statusbar-item">,</span>
+			<span class="statusbar-item" id="vpboundy">0.0</span>
+			<span class="statusbar-item">,</span>
+			<span class="statusbar-item" id="vpboundw">0.0</span>
+			<span class="statusbar-item">,</span>
+			<span class="statusbar-item" id="vpboundh">0.0</span>
+			<span class="statusbar-item">)</span>
+			<span class="statusbar-item"> | </span>
+			<span class="statusbar-item" id="unitsize">1</span>
+			<span class="statusbar-item">gridcell = 1 worldunit</span>
 		</div>
 		<script>
 			const TOOLBAR_HEIGHT = 36;
@@ -54,6 +66,11 @@
 			let zoomstepElement = document.getElementById("zoomstep");
 			let vpcenterxElement = document.getElementById("vpcenterx");
 			let vpcenteryElement = document.getElementById("vpcentery");
+			let vpboundxElement = document.getElementById("vpboundx");
+			let vpboundyElement = document.getElementById("vpboundy");
+			let vpboundwElement = document.getElementById("vpboundw");
+			let vpboundhElement = document.getElementById("vpboundh");
+			let unitsizeElement = document.getElementById("unitsize");
 			
 			let windowWidth = window.innerWidth;
 			let windowHeight = window.innerHeight;
@@ -62,27 +79,38 @@
 			let ctx = canvasElement.getContext("2d");
 			let viewportCenter = { x: 0, y: 0};
 			let viewportBounds = { x: 0, y: 0, width: 0, height: 0};
-			let unitSize = 16;
 			let gridSize = 16;
 			let editMode = 'vertex';
 			let zoom = 1.0;
 			let zoomStep = 0.1;
 			
+			const UNIT_SIZE = 16;
+			
 			const MIN_ZOOM = 0.2;
 			const MAX_ZOOM = 5;
 			
-			const EDGE_COLOR = "#5AB5E2"
-			const SECTOR_COLOR = "#D3C543"
+			const MODE_VERTEX = 'vertex';
+			const MODE_EDGE = 'edge';
+			const MODE_SECTOR = 'sector';
+			const MODE_THING = 'thing';
+			const MODE_SECLIGHT = 'sector_light';
+			
+			const VERTEX_COLOR = "#FBEDFA";
+			const EDGE_COLOR = "#5AB5E2";
+			const SECTOR_COLOR = "#D3C543";
+			const THING_COLOR = "#F489B0";
+			
+			let mouseDrag = false;
 			
 			resizeElements();
 			redrawEditor();
 			
 			function pixelToWorldunit(pixel) {
-				return pixel / unitSize;
+				return pixel / UNIT_SIZE;
 			}
 			
 			function worldunitToPixel(worldunit) {
-				return unitSize * worldunit;
+				return UNIT_SIZE * worldunit;
 			}
 			
 			function drawThings() {
@@ -90,24 +118,35 @@
 			}
 			
 			function drawLevel() {
+				ctx.lineWidth = 3;
 				
 			}
 			
 			function drawGrid() {
+				ctx.lineWidth = 1;
+			
 				ctx.fillStyle = 'rgb(0, 0, 0)';
 				ctx.fillRect(0, 0, canvas.width, canvas.height);
 				
 				ctx.strokeStyle = 'rgb(0, 100, 0)';
 				ctx.beginPath();
 				
-				for(let y = 0; y < canvas.height; y += worldunitToPixel(1) * zoom) {
-					for(let x = 0; x < canvas.width; x += worldunitToPixel(1) * zoom) {
-						ctx.moveTo(x, 0);
-						ctx.lineTo(x, canvas.height);
+				let offsetx = viewportCenter.x % gridSize;
+				let offsety = viewportCenter.y % gridSize;
+				
+				let relativeZoom = Math.floor(zoom / 2.0);
+				let zoomRemainder = (zoom % 2).toFixed(1);
+				if(zoomRemainder == 0) zoomRemainder = 1.0;
+				
+				//gridSize *= relativeZoom;
+				
+				for(let y = 0; y < canvas.height; y += gridSize * zoomRemainder) {
+					for(let x = 0; x < canvas.width; x += gridSize * zoomRemainder) {
+						ctx.moveTo(offsetx + x, 0);
+						ctx.lineTo(offsetx + x, canvas.height);
 						
-						ctx.moveTo(0, y);
-						ctx.lineTo(canvas.width, y);
-						
+						ctx.moveTo(0, offsety + y);
+						ctx.lineTo(canvas.width, offsety + y);
 					}
 				}
 				
@@ -116,33 +155,62 @@
 			}
 			
 			function redrawEditor() {
-				ctx.lineWidth = 1;
+				
+				viewportBounds.width = canvas.width;
+				viewportBounds.height = canvas.height;
+				viewportBounds.x = viewportCenter.x - viewportBounds.width / 2;
+				viewportBounds.y = viewportCenter.y - viewportBounds.height / 2;
+				
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				drawGrid();
+				updateStatusbarValues();
 			}
 			
-			canvas.onkeydown = function(ev) {				
-				zoom = 1.0;
+			window.onkeydown = function(ev) {				
+				ev.preventDefault();
 				
-				redrawEditor();
+				
 			}
 			
-			canvas.onkeyup = function(ev) {
+			window.onkeyup = function(ev) {
+				ev.preventDefault();
+				
 				
 			}
 			
 			canvas.onmousedown = function(ev) {
-				zoom = 1.0;
+				ev.preventDefault();
 				
-				redrawEditor();
+				if(ev.ctrlKey && ev.button === 0) {
+					mouseDrag = true;
+				}
 			}
 			
 			canvas.onmouseup = function(ev) {
+				ev.preventDefault();
 				
+				if(ev.button === 0) {
+					mouseDrag = false;
+				}
 			}
 			
+			let oldMousePos = { x: 0, y: 0};
 			canvas.onmousemove = function(ev) {
+				ev.preventDefault();
 				
+				let mousePos = { x: ev.clientX, y: ev.clientY};
+				
+				let mouseDelta = { x: mousePos.x - oldMousePos.x, y: mousePos.y - oldMousePos.y};
+				
+				if(mouseDrag) {
+					viewportCenter.x += mouseDelta.x;
+					viewportCenter.y += mouseDelta.y;
+				}
+				
+				oldMousePos.x = mousePos.x;
+				oldMousePos.y = mousePos.y;
+				
+				redrawEditor();
 			}
 			
 			canvas.onmousewheel = function(ev) {
@@ -151,15 +219,24 @@
 				
 				zoom = zoom > MAX_ZOOM ? MAX_ZOOM : zoom < MIN_ZOOM ? MIN_ZOOM : zoom;
 				
-				zoomlevelElement.innerHTML = zoom.toFixed(1);
-				
 				redrawEditor();
 			}
 			
-			// sidebar stuff
+			// statusbar stuff
 			
-			function addItemToList(which, what) {
+			function updateStatusbarValues() {
+				modeElement.innerHTML = editMode;
+				gridsizeElement.innerHTML = gridSize;
+				zoomlevelElement.innerHTML = zoom.toFixed(1);
+				zoomstepElement.innerHTML = zoomStep.toFixed(1);
+				vpcenterxElement.innerHTML = viewportCenter.x.toFixed(1);
+				vpcenteryElement.innerHTML = viewportCenter.y.toFixed(1);
+				vpboundxElement.innerHTML = viewportBounds.x.toFixed(1);
+				vpboundyElement.innerHTML = viewportBounds.y.toFixed(1);
+				vpboundwElement.innerHTML = viewportBounds.width.toFixed(1);
+				vpboundhElement.innerHTML = viewportBounds.height.toFixed(1);
 				
+				unitsizeElement.innerHTML = pixelToWorldunit(gridSize);
 			}
 			
 			// general stuff
@@ -188,7 +265,6 @@
 				resizeElements();
 				redrawEditor();
 			}
-			
 		</script>
 	</body>
 </html>

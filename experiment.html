@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Blueprint</title>
+		<meta charset="utf-8"/>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web|Ubuntu+Mono">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+		<link rel="stylesheet" href="styles/experiment.css">
+	</head>
+	<body>
+		<div id="toolbar">
+			<span class="material-icons toolbar-item" id="new-level">note_add</span>
+			<span class="material-icons toolbar-item" id="load-level">file_upload</span>
+			<span class="material-icons toolbar-item" id="save-level">file_download</span>
+			<span class="material-icons toolbar-item" id="new-level">photo</span>
+		</div>
+		<div id="workarea">
+			<canvas class="workarea-item" id="canvas" tabindex="1"></canvas>
+		</div>
+		<div id="statusbar">
+			<span class="statusbar-item">Mode:</span>
+			<span class="statusbar-item" id="editmode">Vertex</span>
+			<span class="statusbar-item"> | </span>
+			<span class="statusbar-item">Gridsize:</span>
+			<span class="statusbar-item" id="gridsize">16</span>
+			<span class="statusbar-item"> | </span>
+			<span class="statusbar-item">Zoomlevel:</span>
+			<span class="statusbar-item" id="zoomlevel">1.0</span>
+			<span class="statusbar-item"> | </span>
+			<span class="statusbar-item">Zoomstep:</span>
+			<span class="statusbar-item" id="zoomstep">0.1</span>
+			<span class="statusbar-item"> | </span>
+			<span class="statusbar-item">Viewportcenter:(</span>
+			<span class="statusbar-item" id="vpcenterx">0.0</span>
+			<span class="statusbar-item">:</span>
+			<span class="statusbar-item" id="vpcentery">0.0</span>
+			<span class="statusbar-item">)</span>
+			<span class="statusbar-item"> | </span>
+			<span class="statusbar-item">16 pixel = 1 worldunit</span>
+		</div>
+		<script>
+			const TOOLBAR_HEIGHT = 36;
+			const STATUSBAR_HEIGHT = 16;
+			
+			let toolbarElement = document.getElementById("toolbar");
+			let workareaElement = document.getElementById("workarea");
+			let statusbarElement = document.getElementById("statusbar");
+			
+			let canvasElement = document.getElementById("canvas");
+			
+			let modeElement = document.getElementById("editmode");
+			let gridsizeElement = document.getElementById("gridsize");
+			let zoomlevelElement = document.getElementById("zoomlevel");
+			let zoomstepElement = document.getElementById("zoomstep");
+			let vpcenterxElement = document.getElementById("vpcenterx");
+			let vpcenteryElement = document.getElementById("vpcentery");
+			
+			let windowWidth = window.innerWidth;
+			let windowHeight = window.innerHeight;
+			
+			// editor stuff
+			let ctx = canvasElement.getContext("2d");
+			let viewportCenter = { x: 0, y: 0};
+			let viewportBounds = { x: 0, y: 0, width: 0, height: 0};
+			let unitSize = 16;
+			let gridSize = 16;
+			let editMode = 'vertex';
+			let zoom = 1.0;
+			let zoomStep = 0.1;
+			
+			const MIN_ZOOM = 0.2;
+			const MAX_ZOOM = 5;
+			
+			const EDGE_COLOR = "#5AB5E2"
+			const SECTOR_COLOR = "#D3C543"
+			
+			resizeElements();
+			redrawEditor();
+			
+			function pixelToWorldunit(pixel) {
+				return pixel / unitSize;
+			}
+			
+			function worldunitToPixel(worldunit) {
+				return unitSize * worldunit;
+			}
+			
+			function drawThings() {
+				
+			}
+			
+			function drawLevel() {
+				
+			}
+			
+			function drawGrid() {
+				ctx.fillStyle = 'rgb(0, 0, 0)';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				
+				ctx.strokeStyle = 'rgb(0, 100, 0)';
+				ctx.beginPath();
+				
+				for(let y = 0; y < canvas.height; y += worldunitToPixel(1) * zoom) {
+					for(let x = 0; x < canvas.width; x += worldunitToPixel(1) * zoom) {
+						ctx.moveTo(x, 0);
+						ctx.lineTo(x, canvas.height);
+						
+						ctx.moveTo(0, y);
+						ctx.lineTo(canvas.width, y);
+						
+					}
+				}
+				
+				ctx.closePath();
+				ctx.stroke();
+			}
+			
+			function redrawEditor() {
+				ctx.lineWidth = 1;
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				drawGrid();
+			}
+			
+			canvas.onkeydown = function(ev) {				
+				zoom = 1.0;
+				
+				redrawEditor();
+			}
+			
+			canvas.onkeyup = function(ev) {
+				
+			}
+			
+			canvas.onmousedown = function(ev) {
+				zoom = 1.0;
+				
+				redrawEditor();
+			}
+			
+			canvas.onmouseup = function(ev) {
+				
+			}
+			
+			canvas.onmousemove = function(ev) {
+				
+			}
+			
+			canvas.onmousewheel = function(ev) {
+				let delta = ev.wheelDelta > 1 ? 1 : ev.wheelDelta < -1 ? -1 : 0;
+				zoom += delta * zoomStep;
+				
+				zoom = zoom > MAX_ZOOM ? MAX_ZOOM : zoom < MIN_ZOOM ? MIN_ZOOM : zoom;
+				
+				zoomlevelElement.innerHTML = zoom.toFixed(1);
+				
+				redrawEditor();
+			}
+			
+			// sidebar stuff
+			
+			function addItemToList(which, what) {
+				
+			}
+			
+			// general stuff
+			
+			function resizeElements() {
+				toolbarElement.style.width = windowWidth + "px";
+				toolbarElement.style.height = TOOLBAR_HEIGHT + "px";
+				
+				let workWidth = windowWidth;
+				let workHeight = windowHeight - TOOLBAR_HEIGHT - STATUSBAR_HEIGHT;
+				workareaElement.style.width = workWidth + "px";
+				workareaElement.style.height = workHeight + "px";
+				workareaElement.style.top = TOOLBAR_HEIGHT + "px";
+				
+				canvasElement.width = workWidth;
+				canvasElement.height = workHeight;
+				
+				statusbarElement.style.width = windowWidth + "px";
+				statusbarElement.style.height = STATUSBAR_HEIGHT + "px";
+			}
+			
+			window.onresize = function() {
+				windowWidth = window.innerWidth;
+				windowHeight = window.innerHeight;
+			
+				resizeElements();
+				redrawEditor();
+			}
+			
+		</script>
+	</body>
+</html>

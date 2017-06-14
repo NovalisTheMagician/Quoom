@@ -78,25 +78,35 @@ section.login {
 
 table {
     margin: auto;
-    text-align:left;
+    margin-left: 50px;
+    margin-right:50px;
 }
 
 form {
-    width: 40vh;
+    width: 40%;
     margin: auto;
     background-color: #81B7CF;
-    height: 25vh;
+    height: 35%;
     border-radius: 10px;
 }
 
 input[type=text], input[type=password] {
-    width: 80%;
+    width: 65%;
     display: inline-block;
-    text-align: center;
     box-sizing: border-box;
-    background-color: #81B7CF;
-    border: none;
-    border-bottom: 2px solid red;
+    border: 1px solid #A0A0A0;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+    border: 2px solid #555;
+}
+
+td {
+    height: 30px;
+}
+
+td.input {
+    width: 90%;
 }
 
 button {

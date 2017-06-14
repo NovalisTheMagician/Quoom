@@ -95,8 +95,8 @@ function updateStatusbarValues() {
 	vpcenterxElement.innerHTML = viewportCenter.x.toFixed(1);
 	vpcenteryElement.innerHTML = viewportCenter.y.toFixed(1);
 	
-	mousexElement.innerHTML = 0.0;
-	mouseyElement.innerHTML = 0.0;
+	mousexElement.innerHTML = editor.getMousePos().x.toFixed(1);
+	mouseyElement.innerHTML = editor.getMousePos().y.toFixed(1);
 }
 
 function resizeElements() {
@@ -115,6 +115,8 @@ function resizeElements() {
 	statusbarElement.style.height = STATUSBAR_HEIGHT + "px";
 	
 	editor.onResize(canvasElement.width, canvasElement.height);
+	
+	updateStatusbarValues();
 }
 
 window.onresize = function() {

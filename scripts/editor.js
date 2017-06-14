@@ -33,21 +33,21 @@ class Editor {
 	constructor(canvasElement) {
 		this.ctx = canvasElement.getContext("2d");
 		
-		this.viewport = { x: 0, y: 0, width: canvasElement.width, height: canvasElement.height};
+		let width = Util.pixelToWorldunit(canvasElement.width);
+		let height = Util.pixelToWorldunit(canvasElement.height);
+		
+		this.viewport = { x: -width/2, y: -height/2, width: width, height: height};
 		
 		this.currentEditMode = Constants.EditMode.VERTEX;
 		this.previousEditMode = Constants.EditMode.VERTEX;
 		
 		this.gridSize = Constants.UNITSIZE;
 		
+		this.mousePos = { x: 0, y: 0};
 		this.mouseDrag = false;
 		
 		this.zoom = 1.0;
 		this.zoomStep = 0.1;
-	}
-	
-	get viewportBounds() {
-		return this.viewport;
 	}
 	
 	get viewportCenter() {
@@ -56,7 +56,7 @@ class Editor {
 		let vpw = this.viewport.width;
 		let vph = this.viewport.height;
 		
-		return { x: vpx + vpw / 2, y: vpy + vph / 2};
+		return { x: vpx + vpw / 2.0, y: vpy + vph / 2.0};
 	}
 	
 	set viewportCenter(location) {
@@ -83,12 +83,20 @@ class Editor {
 		return this.zoomStep;
 	}
 	
+	getMousePos() {
+		return this.mousePos;
+	}
+	
 	moveViewport(deltaPos) {
 		if(deltaPos.x === null || deltaPos.y === null)
 			return;
 		
-		this.viewport.x += deltaPos.x;
-		this.viewport.y += deltaPos.y;
+		this.viewport.x += Util.pixelToWorldunit(deltaPos.x);
+		this.viewport.y += Util.pixelToWorldunit(deltaPos.y);
+	}
+	
+	drawHelper() {
+		
 	}
 	
 	drawThings() {
@@ -100,10 +108,10 @@ class Editor {
 	}
 	
 	drawGrid() {
-		let ctx = this.ctx;
-		
 		let centerx = Util.worldunitToPixel(this.viewportCenter.x);
 		let centery = Util.worldunitToPixel(this.viewportCenter.y);
+		
+		console.log(centerx);
 		
 		let offsetx = (centerx % this.gridSize);
 		let offsety = (centery % this.gridSize);
@@ -111,32 +119,33 @@ class Editor {
 		let width = Util.worldunitToPixel(this.viewport.width);
 		let height = Util.worldunitToPixel(this.viewport.height);
 		
-		ctx.lineWidth = 1;
+		this.ctx.lineWidth = 1;
 		
-		ctx.fillStyle = '#0048ba';
-		ctx.fillRect(0, 0, width, height);
+		this.ctx.fillStyle = '#0048ba';
+		this.ctx.fillRect(0, 0, width, height);
 		
-		ctx.strokeStyle = '#3399ff';
-		ctx.beginPath();
+		this.ctx.strokeStyle = '#3399ff';
+		this.ctx.beginPath();
 		
 		for(let y = 0; y < height; y += this.gridSize) {
 			for(let x = 0; x < width; x += this.gridSize) {
-				ctx.moveTo(offsetx + x, 0);
-				ctx.lineTo(offsetx + x, height);
+				this.ctx.moveTo(offsetx + x, 0);
+				this.ctx.lineTo(offsetx + x, height);
 				
-				ctx.moveTo(0, offsety + y);
-				ctx.lineTo(width, offsety + y);
+				this.ctx.moveTo(0, offsety + y);
+				this.ctx.lineTo(width, offsety + y);
 			}
 		}
 		
-		ctx.closePath();
-		ctx.stroke();
+		this.ctx.closePath();
+		this.ctx.stroke();
 	}
 	
 	redraw() {
 		this.drawGrid();
 		this.drawLevel();
 		this.drawThings();
+		this.drawHelper();
 	}
 	
 	onResize(newWidth, newHeight) {
@@ -167,6 +176,12 @@ class Editor {
 	}
 	
 	onMouseMove(ev) {
+		let worldMouseX = Util.pixelToWorldunit(ev.clientX);
+		let worldMouseY = Util.pixelToWorldunit(ev.clientY);
+		
+		this.mousePos.x = worldMouseX - this.viewport.width / 2.0 + this.viewportCenter.x;
+		this.mousePos.y = worldMouseY - this.viewport.height / 2.0 + this.viewportCenter.y;
+		
 		if(this.mouseDrag) {
 			this.moveViewport(ev.delta);
 			this.redraw();
@@ -185,7 +200,7 @@ class Editor {
 	}
 	
 	onKeyDown(ev) {
-		if(ev.altKey) {
+		if(ev.shiftKey && this.currentEditMode !== Constants.EditMode.VIEWPORT) {
 			this.previousEditMode = this.currentEditMode;
 			this.currentEditMode = Constants.EditMode.VIEWPORT;
 		}
@@ -195,7 +210,7 @@ class Editor {
 	}
 	
 	onKeyUp(ev) {
-		if(!ev.altKey && this.currentEditMode === Constants.EditMode.VIEWPORT) {
+		if(!ev.shiftKey && this.currentEditMode === Constants.EditMode.VIEWPORT) {
 			this.currentEditMode = this.previousEditMode;
 		}
 	}

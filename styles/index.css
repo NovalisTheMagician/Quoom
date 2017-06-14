@@ -4,48 +4,99 @@ html, body {
     min-height: 100%;
 }
 
+header {
+	text-align: center;
+}
+
+section {
+    width: 70%;
+    height: 85vh;
+    margin: auto;
+    margin-top: 5vh;
+    background-color: #81B7CF;
+	text-align: center;
+    color: black;
+    font-family: 'Source Sans Pro', sans-serif;
+    overflow: hidden;
+    padding-top: 5vh;
+}
+
+/*Navigation menu*/
+nav.navigation-bar ul{
+    width: 100%;
+    height: 10vh;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #111E23;
+    position: fixed;
+    z-index: 100;
+    left: 0px;
+    top: 0px;
+}
+
+a.navigation-bar-item {
+    margin: 30px 10px 0px 10px;
+}
+
+a.navigation-bar-item-home {
+    font-family: fantasy;
+    font-size: 35px; 
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: left;
+    text-decoration: none;
+    padding: 10px;
+    margin: 10px 5px 0px 10px;
+    
+}
+
+li a:hover{
+    background-color: #1C353F;
+}
+
+/*Index page*/
 article {
     width: 80%;
     margin: auto;
     text-align: justify;
-    padding-bottom: 20px;
-    padding-top: 5vh;
+    padding-bottom: 2vh;
 }
 
-footer {
-    background-color: black;
-    text-align: center;
-    color: #D9F2F4;
-    position: relative;
-    left: 0;
-    bottom: 0;
-    height: 5vh;
-    width: 100%;
-    overflow:hidden;
-}
-
-p.footer-text {
-    padding-bottom: 10px;
-}
-
+/*Log In page*/
 section.login {
-    width: 40%;
-    height: 40%;
-    border-radius: 10px;
-    margin: auto;
+    background-color: white;
 }
 
-h2, section.login {
+table {
     margin: auto;
-    padding: 5px;
-    margin-top: 20px;
+    text-align:left;
+}
+
+form {
+    width: 40vh;
+    margin: auto;
+    background-color: #81B7CF;
+    height: 25vh;
+    border-radius: 10px;
 }
 
 input[type=text], input[type=password] {
-    width: 70%;
-    margin: auto;
+    width: 80%;
     display: inline-block;
+    text-align: center;
     box-sizing: border-box;
+    background-color: #81B7CF;
+    border: none;
+    border-bottom: 2px solid red;
 }
 
 button {
@@ -63,64 +114,18 @@ button:hover {
     opacity: 0.9;
 }
 
-a.navigation-bar-item-home {
-    font-family: fantasy;
-    font-size: 35px; 
-}
-
-nav.navigation-bar ul{
+/*Footer menu*/
+footer {
+    background-color: black;
+    text-align: center;
+    color: white;
+    position: relative;
+    bottom: 0;
+    height: 5vh;
     width: 100%;
-    height: 10vh;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
     overflow: hidden;
-    background-color: #111E23;
-    position: fixed;
-    z-index: 100;
-    left: 0px;
-    top: 0px;
 }
 
-section {
-    width: 70%;
-    height: 90vh;
-    margin: auto;
-    margin-top: 5vh;
-    background-color: #81B7CF;
-	text-align: center;
-    color: black;
-    font-family: 'Source Sans Pro', sans-serif;
-}
-
-form {
-    width: 50%;
-    margin: auto;
-}
-
-li {
-    float: left;
-}
-
-li a {
-    display: block;
-    color: aliceblue;
-    text-align: left;
-    text-decoration: none;
-    padding: 10px;
-    margin: 10px 5px 0px 10px;
-    
-}
-
-a.navigation-bar-item {
-    margin: 30px 10px 0px 10px;
-}
-
-li a:hover{
-    background-color: #1C353F;
-    
-}
-
-header {
-	text-align: center;
+footer p {
+    padding-bottom: 10px;
 }

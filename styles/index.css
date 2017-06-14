@@ -76,6 +76,11 @@ section.login {
     background-color: white;
 }
 
+table {
+    margin: auto;
+    text-align:left;
+}
+
 form {
     width: 40vh;
     margin: auto;
@@ -85,10 +90,13 @@ form {
 }
 
 input[type=text], input[type=password] {
-    width: 70%;
-    margin: auto;
+    width: 80%;
     display: inline-block;
+    text-align: center;
     box-sizing: border-box;
+    background-color: #81B7CF;
+    border: none;
+    border-bottom: 2px solid red;
 }
 
 button {
@@ -118,6 +126,6 @@ footer {
     overflow: hidden;
 }
 
-p.footer-text {
+footer p {
     padding-bottom: 10px;
 }

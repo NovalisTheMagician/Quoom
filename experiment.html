@@ -14,13 +14,12 @@
 			<span class="material-icons toolbar-item" id="save-level">file_download</span>
 			<span class="material-icons toolbar-item" id="new-level">photo</span>
 		</div>
-		<div id="workarea">
-			<canvas class="workarea-item" id="canvas" tabindex="1"></canvas>
-		</div>
+		<canvas id="workarea">
+		</canvas>
 		<div id="statusbar">
 			<span class="statusbar-item">></span>
 			<span class="statusbar-item">Mode:</span>
-			<span class="statusbar-item" id="editmode">Vertex</span>
+			<span class="statusbar-item" id="editmode">vertex</span>
 			<span class="statusbar-item"> | </span>
 			<span class="statusbar-item">Gridsize:</span>
 			<span class="statusbar-item" id="gridsize">16</span>
@@ -37,234 +36,13 @@
 			<span class="statusbar-item" id="vpcentery">0.0</span>
 			<span class="statusbar-item">)</span>
 			<span class="statusbar-item"> | </span>
-			<span class="statusbar-item">VPbounds:(</span>
-			<span class="statusbar-item" id="vpboundx">0.0</span>
-			<span class="statusbar-item">,</span>
-			<span class="statusbar-item" id="vpboundy">0.0</span>
-			<span class="statusbar-item">,</span>
-			<span class="statusbar-item" id="vpboundw">0.0</span>
-			<span class="statusbar-item">,</span>
-			<span class="statusbar-item" id="vpboundh">0.0</span>
+			<span class="statusbar-item">Mouse:(</span>
+			<span class="statusbar-item" id="mousex">0.0</span>
+			<span class="statusbar-item">:</span>
+			<span class="statusbar-item" id="mousey">0.0</span>
 			<span class="statusbar-item">)</span>
-			<span class="statusbar-item"> | </span>
-			<span class="statusbar-item" id="unitsize">1</span>
-			<span class="statusbar-item">gridcell = 1 worldunit</span>
 		</div>
-		<script>
-			const TOOLBAR_HEIGHT = 36;
-			const STATUSBAR_HEIGHT = 16;
-			
-			let toolbarElement = document.getElementById("toolbar");
-			let workareaElement = document.getElementById("workarea");
-			let statusbarElement = document.getElementById("statusbar");
-			
-			let canvasElement = document.getElementById("canvas");
-			
-			let modeElement = document.getElementById("editmode");
-			let gridsizeElement = document.getElementById("gridsize");
-			let zoomlevelElement = document.getElementById("zoomlevel");
-			let zoomstepElement = document.getElementById("zoomstep");
-			let vpcenterxElement = document.getElementById("vpcenterx");
-			let vpcenteryElement = document.getElementById("vpcentery");
-			let vpboundxElement = document.getElementById("vpboundx");
-			let vpboundyElement = document.getElementById("vpboundy");
-			let vpboundwElement = document.getElementById("vpboundw");
-			let vpboundhElement = document.getElementById("vpboundh");
-			let unitsizeElement = document.getElementById("unitsize");
-			
-			let windowWidth = window.innerWidth;
-			let windowHeight = window.innerHeight;
-			
-			// editor stuff
-			let ctx = canvasElement.getContext("2d");
-			let viewportCenter = { x: 0, y: 0};
-			let viewportBounds = { x: 0, y: 0, width: 0, height: 0};
-			let gridSize = 16;
-			let editMode = 'vertex';
-			let zoom = 1.0;
-			let zoomStep = 0.1;
-			
-			const UNIT_SIZE = 16;
-			
-			const MIN_ZOOM = 0.2;
-			const MAX_ZOOM = 5;
-			
-			const MODE_VERTEX = 'vertex';
-			const MODE_EDGE = 'edge';
-			const MODE_SECTOR = 'sector';
-			const MODE_THING = 'thing';
-			const MODE_SECLIGHT = 'sector_light';
-			
-			const VERTEX_COLOR = "#FBEDFA";
-			const EDGE_COLOR = "#5AB5E2";
-			const SECTOR_COLOR = "#D3C543";
-			const THING_COLOR = "#F489B0";
-			
-			let mouseDrag = false;
-			
-			resizeElements();
-			redrawEditor();
-			
-			function pixelToWorldunit(pixel) {
-				return pixel / UNIT_SIZE;
-			}
-			
-			function worldunitToPixel(worldunit) {
-				return UNIT_SIZE * worldunit;
-			}
-			
-			function drawThings() {
-				
-			}
-			
-			function drawLevel() {
-				ctx.lineWidth = 3;
-				
-			}
-			
-			function drawGrid() {
-				ctx.lineWidth = 1;
-			
-				ctx.fillStyle = 'rgb(0, 0, 0)';
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
-				
-				ctx.strokeStyle = 'rgb(0, 100, 0)';
-				ctx.beginPath();
-				
-				let offsetx = viewportCenter.x % gridSize;
-				let offsety = viewportCenter.y % gridSize;
-				
-				let relativeZoom = Math.floor(zoom / 2.0);
-				let zoomRemainder = (zoom % 2).toFixed(1);
-				if(zoomRemainder == 0) zoomRemainder = 1.0;
-				
-				//gridSize *= relativeZoom;
-				
-				for(let y = 0; y < canvas.height; y += gridSize * zoomRemainder) {
-					for(let x = 0; x < canvas.width; x += gridSize * zoomRemainder) {
-						ctx.moveTo(offsetx + x, 0);
-						ctx.lineTo(offsetx + x, canvas.height);
-						
-						ctx.moveTo(0, offsety + y);
-						ctx.lineTo(canvas.width, offsety + y);
-					}
-				}
-				
-				ctx.closePath();
-				ctx.stroke();
-			}
-			
-			function redrawEditor() {
-				
-				viewportBounds.width = canvas.width;
-				viewportBounds.height = canvas.height;
-				viewportBounds.x = viewportCenter.x - viewportBounds.width / 2;
-				viewportBounds.y = viewportCenter.y - viewportBounds.height / 2;
-				
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				drawGrid();
-				updateStatusbarValues();
-			}
-			
-			window.onkeydown = function(ev) {				
-				ev.preventDefault();
-				
-				
-			}
-			
-			window.onkeyup = function(ev) {
-				ev.preventDefault();
-				
-				
-			}
-			
-			canvas.onmousedown = function(ev) {
-				ev.preventDefault();
-				
-				if(ev.ctrlKey && ev.button === 0) {
-					mouseDrag = true;
-				}
-			}
-			
-			canvas.onmouseup = function(ev) {
-				ev.preventDefault();
-				
-				if(ev.button === 0) {
-					mouseDrag = false;
-				}
-			}
-			
-			let oldMousePos = { x: 0, y: 0};
-			canvas.onmousemove = function(ev) {
-				ev.preventDefault();
-				
-				let mousePos = { x: ev.clientX, y: ev.clientY};
-				
-				let mouseDelta = { x: mousePos.x - oldMousePos.x, y: mousePos.y - oldMousePos.y};
-				
-				if(mouseDrag) {
-					viewportCenter.x += mouseDelta.x;
-					viewportCenter.y += mouseDelta.y;
-				}
-				
-				oldMousePos.x = mousePos.x;
-				oldMousePos.y = mousePos.y;
-				
-				redrawEditor();
-			}
-			
-			canvas.onmousewheel = function(ev) {
-				let delta = ev.wheelDelta > 1 ? 1 : ev.wheelDelta < -1 ? -1 : 0;
-				zoom += delta * zoomStep;
-				
-				zoom = zoom > MAX_ZOOM ? MAX_ZOOM : zoom < MIN_ZOOM ? MIN_ZOOM : zoom;
-				
-				redrawEditor();
-			}
-			
-			// statusbar stuff
-			
-			function updateStatusbarValues() {
-				modeElement.innerHTML = editMode;
-				gridsizeElement.innerHTML = gridSize;
-				zoomlevelElement.innerHTML = zoom.toFixed(1);
-				zoomstepElement.innerHTML = zoomStep.toFixed(1);
-				vpcenterxElement.innerHTML = viewportCenter.x.toFixed(1);
-				vpcenteryElement.innerHTML = viewportCenter.y.toFixed(1);
-				vpboundxElement.innerHTML = viewportBounds.x.toFixed(1);
-				vpboundyElement.innerHTML = viewportBounds.y.toFixed(1);
-				vpboundwElement.innerHTML = viewportBounds.width.toFixed(1);
-				vpboundhElement.innerHTML = viewportBounds.height.toFixed(1);
-				
-				unitsizeElement.innerHTML = pixelToWorldunit(gridSize);
-			}
-			
-			// general stuff
-			
-			function resizeElements() {
-				toolbarElement.style.width = windowWidth + "px";
-				toolbarElement.style.height = TOOLBAR_HEIGHT + "px";
-				
-				let workWidth = windowWidth;
-				let workHeight = windowHeight - TOOLBAR_HEIGHT - STATUSBAR_HEIGHT;
-				workareaElement.style.width = workWidth + "px";
-				workareaElement.style.height = workHeight + "px";
-				workareaElement.style.top = TOOLBAR_HEIGHT + "px";
-				
-				canvasElement.width = workWidth;
-				canvasElement.height = workHeight;
-				
-				statusbarElement.style.width = windowWidth + "px";
-				statusbarElement.style.height = STATUSBAR_HEIGHT + "px";
-			}
-			
-			window.onresize = function() {
-				windowWidth = window.innerWidth;
-				windowHeight = window.innerHeight;
-			
-				resizeElements();
-				redrawEditor();
-			}
-		</script>
+		<script src="scripts/editor.js"></script>
+		<script src="scripts/experiment.js"></script>
 	</body>
 </html>

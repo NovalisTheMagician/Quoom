@@ -15,7 +15,7 @@ html, body {
 	position: absolute;
 	top: 0;
 	width: 100%;
-	height: 55px;
+	height: 36px;
 }
 
 .toolbar-item {
@@ -41,21 +41,12 @@ html, body {
 	height: 92.5%;
 }
 
-#canvas {
-	outline: none;
-}
-
-.workarea-item {
-	width: 100%;
-	height: 100%;
-}
-
 #statusbar {
 	background-color: #74A7BC;
 	position: absolute;
 	bottom: 0;
 	width: 100%;
-	height: 2.5%;
+	height: 16px;
 }
 
 .statusbar-item {

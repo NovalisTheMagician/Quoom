@@ -2,6 +2,7 @@ html, body {
 	margin: 0;
     display: block;
     min-height: 100%;
+    background-color: #061928;
 }
 
 header {
@@ -63,6 +64,22 @@ li a:hover{
     background-color: #1C353F;
 }
 
+/*Index page welcome img*/
+div.slider {
+    position: relative;
+    top: 10vh;
+    width: 100%;
+    height: 421px;
+    background-color: #061928;
+}
+
+img.slider-img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: auto;
+}
+
 /*Index page*/
 article {
     width: 80%;
@@ -76,10 +93,17 @@ section.login {
     background-color: white;
 }
 
+h2.login-header {
+    padding-top: 20px;
+    font-size: 30px;
+    color: #002D47;
+}
+
 table {
     margin: auto;
+    margin-top: -5px;
     margin-left: 50px;
-    margin-right:50px;
+    margin-right: 20px;
 }
 
 form {
@@ -110,18 +134,18 @@ td.input {
 }
 
 button {
-    background-color: deepskyblue;
+    background-color: #002D47;
     color: white;
     padding: 14px 20px;
-    margin: 8px 0;
-    border-color: deepskyblue;
+    margin: 0 50px;
+    border: none;
     cursor: pointer;
     width: 30%;
     border-radius: 10px;   
 }
 
 button:hover {
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 /*Footer menu*/

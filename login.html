@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 		<title>Quoom</title>
 		<meta charset="utf-8"/>
 		<link rel="stylesheet" href="styles/index.css">
@@ -21,28 +22,36 @@
         <div class="mainSection">
             <section class="login">
                 <form>
-                    <h2>Log In</h2>
+                    <h2 class="login-header">Log In</h2>
                     <table>
                         <tr>
                             <th>&nbsp;</th>  
                             <th>&nbsp;</th>
                         </tr>
                         <tr>
-                            <td><label>Username:</label></td>
-                            <td class="input"><input type="text" name="usrname"></td>
+                            <td>
+                                <label>Username:</label>
+                            </td>
+                            <td class="input">
+                                <input type="text" name="usrname">
+                            </td>
                         </tr>
                         <tr>
-                            <td><label>Password:</label></td>
-                            <td class="input"><input type="password" name="passwd"></td>
+                            <td>
+                                <label>Password:</label>
+                            </td>
+                            <td class="input">
+                                <input type="password" name="passwd">
+                            </td>
                         </tr>
                     </table>
                     <p>
+                        <input type="checkbox" checked="checked" name="checkbox">
+                        Remember me
                         <button type="submit" name="loginbtn" value="Log In">
                             Log In
                         </button>
                     </p>
-                    <input type="checkbox" checked="checked" name="checkbox">
-                    Remember me
                 </form>
 		      </section>
         </div> 

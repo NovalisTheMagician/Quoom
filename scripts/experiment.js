@@ -5,7 +5,8 @@ let toolbarElement = document.getElementById("toolbar");
 let statusbarElement = document.getElementById("statusbar");
 let canvasElement = document.getElementById("workarea");
 
-let modeElement = document.getElementById("editmode");
+let modeElement = document.getElementById("toolmode");
+let editElement = document.getElementById("editmode");
 let gridsizeElement = document.getElementById("gridsize");
 let zoomlevelElement = document.getElementById("zoomlevel");
 let zoomstepElement = document.getElementById("zoomstep");
@@ -83,7 +84,8 @@ canvasElement.onmousewheel = function(ev) {
 }
 
 function updateStatusbarValues() {
-	modeElement.innerHTML = editor.getEditMode();
+	modeElement.innerHTML = editor.getToolMode();
+	editElement.innerHTML = editor.getEditMode();
 	
 	gridsizeElement.innerHTML = editor.getGridSize();
 	

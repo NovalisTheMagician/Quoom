@@ -35,6 +35,14 @@ var Util = {
 		return Constants.UNITSIZE * worldunit;
 	},
 	
+	toRadians: function (degrees) {
+		return degrees * (Math.PI / 180);
+	},
+	
+	toDegrees: function (radians) {
+		return radians * (180 / Math.PI);
+	},
+	
 	convertMouseToWorld: function (mouseEvent, viewport) {
 		let worldMouseX = Util.pixelToWorldunit(mouseEvent.clientX);
 		let worldMouseY = Util.pixelToWorldunit(mouseEvent.clientY);
@@ -65,7 +73,6 @@ class Editor {
 		this.previousToolMode = Constants.ToolMode.VERTEX;
 		
 		this.currentEditMode = Constants.EditMode.SELECT;
-		this.previousEditMode = Constants.EditMode.SELECT;
 		
 		this.gridSize = Constants.UNITSIZE;
 		
@@ -78,14 +85,14 @@ class Editor {
 		this.canvasWidth = canvasElement.width;
 		this.canvasHeight = canvasElement.height;
 		
-		this.vertexSelect = [];
-		this.edgeSelect = [];
-		this.sectorSelect = [];
+		this.selections = [];
 		
 		this.things = [];
 		this.vertices = [];
 		this.edges = [];
 		this.sector = [];
+		
+		this.pixelOffset = { x: this.canvasWidth / 2, y: this.canvasHeight / 2};
 	}
 	
 	get viewportCenter() {
@@ -121,10 +128,6 @@ class Editor {
 		return this.zoom;
 	}
 	
-	getZoomStep() {
-		return this.zoomStep;
-	}
-	
 	getMousePos() {
 		return this.mousePos;
 	}
@@ -133,14 +136,14 @@ class Editor {
 		if(deltaPos.x === null || deltaPos.y === null)
 			return;
 		
-		this.viewport.x += Util.pixelToWorldunit(deltaPos.x);
-		this.viewport.y += Util.pixelToWorldunit(deltaPos.y);
+		this.viewport.x += Util.pixelToWorldunit(-deltaPos.x);
+		this.viewport.y += Util.pixelToWorldunit(-deltaPos.y);
 	}
 	
 	drawHelper() {
 		if(this.currentToolMode === Constants.ToolMode.VIEWPORT) {
 			let centerPixel = { x: this.canvasWidth / 2,
-								y: this.canvasheight / 2};
+								y: this.canvasHeight / 2};
 			
 			this.ctx.lineWidth = 3;
 			this.ctx.strokeStyle = '#ffdd00';
@@ -149,28 +152,49 @@ class Editor {
 			this.ctx.lineTo(centerPixel.x, centerPixel.y + 10);
 			this.ctx.moveTo(centerPixel.x - 10, centerPixel.y);
 			this.ctx.lineTo(centerPixel.x + 10, centerPixel.y);
-			this.ctx.closePath();
 			this.ctx.stroke();
 		}
 	}
 	
 	drawThings() {
+		this.ctx.fillStyle = '#00EF0F';
+		this.ctx.beginPath();
+		for(let thing of this.things) {
+			let radius = 5;
+			let x = (Util.worldunitToPixel(thing.x));
+			let y = (Util.worldunitToPixel(thing.y));
+			
+			this.ctx.arc(x, y, raduis, 0, Math.PI, false);
+		}
 		
+		this.ctx.fill;
 	}
 	
 	drawLevel() {
-		
+		this.ctx.fillStyle = '#982002';
+		for(let vertex of this.vertices) {
+			let width = 10;
+			let height = 10;
+			
+			let worldX = vertex.x - this.viewport.x;
+			let worldY = vertex.y - this.viewport.y;
+			
+			let x = (Util.worldunitToPixel(worldX));
+			let y = (Util.worldunitToPixel(worldY));
+			
+			this.ctx.fillRect(x, y, width, height);
+		}
 	}
 	
 	drawGrid() {
-		let centerx = Util.worldunitToPixel(this.viewportCenter.x);
-		let centery = Util.worldunitToPixel(this.viewportCenter.y);
-		
-		let offsetx = (centerx % this.gridSize);
-		let offsety = (centery % this.gridSize);
-		
 		let width = Util.worldunitToPixel(this.viewport.width);
 		let height = Util.worldunitToPixel(this.viewport.height);
+		
+		let viewportX = Util.worldunitToPixel(this.viewportCenter.x);
+		let viewportY = Util.worldunitToPixel(this.viewportCenter.y);
+		
+		let offsetX = viewportX % this.gridSize;
+		let offsetY = viewportY % this.gridSize;
 		
 		this.ctx.lineWidth = 1;
 		
@@ -180,17 +204,17 @@ class Editor {
 		this.ctx.strokeStyle = '#1159cb';
 		this.ctx.beginPath();
 		
-		for(let y = 0; y < height; y += this.gridSize) {
-			for(let x = 0; x < width; x += this.gridSize) {
-				this.ctx.moveTo(offsetx + x, 0);
-				this.ctx.lineTo(offsetx + x, height);
+		for(let y = -offsetY; y < height; y += this.gridSize) {
+			for(let x = -offsetX; x < width; x += this.gridSize) {
+				this.ctx.moveTo(x, 0);
+				this.ctx.lineTo(x, height);
 				
-				this.ctx.moveTo(0, offsety + y);
-				this.ctx.lineTo(width, offsety + y);
+				this.ctx.moveTo(0, y);
+				this.ctx.lineTo(width, y);
 			}
 		}
 		
-		this.ctx.closePath();
+		//this.ctx.closePath();
 		this.ctx.stroke();
 	}
 	
@@ -212,6 +236,7 @@ class Editor {
 	}
 	
 	addEgde() {
+		
 	}
 	
 	changeMode(toMode) {
@@ -239,7 +264,10 @@ class Editor {
 		this.origViewport.height = this.viewport.height;
 		
 		this.canvasWidth = newWidth;
-		this.canvasheight = newHeight;
+		this.canvasHeight = newHeight;
+		
+		this.pixelOffset.x = this.canvasWidth / 2;
+		this.pixelOffset.y = this.canvasHeight / 2;
 		
 		this.redraw();
 	}
@@ -247,13 +275,21 @@ class Editor {
 	onMouseDown(ev) {
 		Util.convertMouseToWorld(ev, this.viewport);
 		
-		if(ev.button === 0 && this.currentToolMode === Constants.ToolMode.VIEWPORT) {
-			this.mouseDrag = true;
+		if(ev.button === 0) {
+			if(this.currentToolMode === Constants.ToolMode.VIEWPORT) {
+				this.mouseDrag = true;
+			}
+			else if(this.currentToolMode === Constants.ToolMode.VERTEX) {
+				if(this.currentEditMode === Constants.EditMode.Vertex.ADD) {
+					this.addVertex({ x: ev.worldX, y: ev.worldY}, ev.shiftKey);
+					this.redraw();
+				}
+			}
 		}
 	}
 	
 	onMouseUp(ev) {
-		Util.convertMouseToWorld(ev, this.viewport);
+		//Util.convertMouseToWorld(ev, this.viewport);
 		
 		if(ev.button === 0) {
 			this.mouseDrag = false;

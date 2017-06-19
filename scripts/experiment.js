@@ -9,7 +9,6 @@ let modeElement = document.getElementById("toolmode");
 let editElement = document.getElementById("editmode");
 let gridsizeElement = document.getElementById("gridsize");
 let zoomlevelElement = document.getElementById("zoomlevel");
-let zoomstepElement = document.getElementById("zoomstep");
 let vpcenterxElement = document.getElementById("vpcenterx");
 let vpcenteryElement = document.getElementById("vpcentery");
 let mousexElement = document.getElementById("mousex");
@@ -90,7 +89,6 @@ function updateStatusbarValues() {
 	gridsizeElement.innerHTML = editor.getGridSize();
 	
 	zoomlevelElement.innerHTML = editor.getZoom().toFixed(1);
-	zoomstepElement.innerHTML = editor.getZoomStep().toFixed(1);
 	
 	let viewportCenter = editor.viewportCenter;
 	

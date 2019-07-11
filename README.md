@@ -1,4 +1,2 @@
 # Quoom
-Webeditor for Custom Games
-
-Test winky face
+Webeditor for custom games in JavaScript. 2D editor for 3D games.
